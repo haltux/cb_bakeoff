@@ -12,11 +12,11 @@ def save_vw_dataset(X, y, did, ds_dir):
         if sp.isspmatrix_csr(X):
             for i in range(X.shape[0]):
                 f.write('{} | {}\n'.format(y[i] + 1, ' '.join(
-                    '{}:{:.6f}'.format(j, val) for j, val in zip(X[i].indices, X[i].data))))
+                    '{}:{:.6f}'.format(j, val) for j, val in zip(X[i].indices, X[i].data))).encode('ascii'))
         else:
             for i in range(X.shape[0]):
                 f.write('{} | {}\n'.format(y[i] + 1, ' '.join(
-                    '{}:{:.6f}'.format(j, val) for j, val in enumerate(X[i]) if val != 0)))
+                    '{}:{:.6f}'.format(j, val) for j, val in enumerate(X[i]) if val != 0)).encode('ascii'))
  
 
 if __name__ == '__main__':
