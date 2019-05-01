@@ -12,3 +12,7 @@ You will need an OML account to get the datasets.
 2. click icon at the top right once logged in
 3. click api authentication button
 4. create file config.py in this directory with contents 
+```
+OML_API_KEY="..."
+VW_DS_DIR="..."
+```
