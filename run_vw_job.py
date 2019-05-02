@@ -1,25 +1,39 @@
+#! /usr/bin/env python3
+
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
+from config import BAKEOFF_BASE_DIR
 
 USE_ADF = True
 USE_CS = False
 
-VW = '/scratch/clear/abietti/.local/bin/vw'
+if shutil.which("vw") is None:
+    print("FATAL: vw not found in path", file=sys.stderr)
+    sys.exit(1)
+
 if USE_CS:
-    VW_DS_DIR = '/scratch/clear/abietti/cb_eval/vwshuffled_cs/'
-    DIR_PATTERN = '/scratch/clear/abietti/cb_eval/res_cs/cbresults_{}/'
+    VW_DS_DIR = os.path.join(BAKEOFF_BASE_DIR,
+                             "cb_eval",
+                             "vwshuffled_cs")
+    DIR_PATTERN = os.path.join(BAKEOFF_BASE_DIR,
+                               "cb_eval",
+                               "res_cs",
+                               "cbresults_{}")
 else:
-    VW_DS_DIR = '/scratch/clear/abietti/cb_eval/vwshuffled/'
-    DIR_PATTERN = '/scratch/clear/abietti/cb_eval/res/cbresults_{}/'
-# VW_DS_DIR = '/bscratch/b-albiet/vwshuffled/'
-# DIR_PATTERN = '/bscratch/b-albiet/cbresults_{}/'
+    VW_DS_DIR = os.path.join(BAKEOFF_BASE_DIR,
+                             "cb_eval",
+                             "vwshuffled")
+    DIR_PATTERN = os.path.join(BAKEOFF_BASE_DIR,
+                               "cb_eval",
+                               "res",
+                               "cbresults_{}")
 
 rgx = re.compile('^average loss = (.*)$', flags=re.M)
-
 
 def expand_cover(policies):
     algs = []
@@ -73,12 +87,12 @@ def param_grid():
                 new_grid.append(gg)
         grid = new_grid
 
-    return sorted(grid)
+    return list(sorted(grid, key = lambda x: list(sorted(x.items()))))
 
 
 def ds_files():
     import glob
-    return sorted(glob.glob(os.path.join(VW_DS_DIR, '*.vw.gz')))
+    return list(sorted(glob.glob(os.path.join(BAKEOFF_BASE_DIR, '*.vw.gz'))))
 
 
 def get_task_name(ds, params):
@@ -93,12 +107,12 @@ def get_task_name(ds, params):
 
 
 def process(ds, params, results_dir):
-    print 'processing', ds, params
+    print('processing', ds, params)
     did, n_actions = os.path.basename(ds).split('.')[0].split('_')[1:]
     did, n_actions = int(did), int(n_actions)
 
-    cmd = [VW, ds, '-b', '24']
-    for k, v in params.iteritems():
+    cmd = [shutil.which("vw"), ds, '-b', '24']
+    for k, v in params.items():
         if k == 'alg':
             if v[0] == 'supervised':
                 cmd += ['--csoaa' if USE_CS else '--oaa', str(n_actions)]
@@ -111,7 +125,7 @@ def process(ds, params, results_dir):
                 if USE_ADF:
                     cmd += ['--cb_explore_adf']
                 assert len(v) % 2 == 0, 'params should be in pairs of (option, value)'
-                for i in range(len(v) / 2):
+                for i in range(len(v) // 2):
                     cmd += ['--{}'.format(v[2 * i])]
                     if v[2 * i + 1] is not None:
                         cmd += [str(v[2 * i + 1])]
@@ -119,15 +133,15 @@ def process(ds, params, results_dir):
             if params['alg'][0] == 'supervised' and k == 'cb_type':
                 pass
             else:
-	        cmd += ['--{}'.format(k), str(v)]
+                cmd += ['--{}'.format(k), str(v)]
 
-    print 'running', cmd
+    print('running', cmd)
     t = time.time()
-    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode('ascii')
     sys.stderr.write('\n\n{}, {}, time: {}, output:\n'.format(ds, params, time.time() - t))
     sys.stderr.write(output)
     pv_loss = float(rgx.findall(output)[0])
-    print 'elapsed time:', time.time() - t, 'pv loss:', pv_loss
+    print('elapsed time:', time.time() - t, 'pv loss:', pv_loss)
 
     return pv_loss
 
@@ -157,7 +171,10 @@ if __name__ == '__main__':
         if not os.path.exists(args.results_dir):
             os.makedirs(args.results_dir)
             import stat
-            os.chmod(args.results_dir, os.stat(args.results_dir).st_mode | stat.S_IWOTH)
+            try:
+                os.chmod(args.results_dir, os.stat(args.results_dir).st_mode | stat.S_IWOTH)
+            except:
+                pass
     else:
         while not os.path.exists(args.results_dir):
             time.sleep(1)
@@ -169,10 +186,10 @@ if __name__ == '__main__':
         loss_file = open(fname, 'a')
     idx = args.task_id
     while idx < tot_jobs:
-        ds = dss[idx / len(grid)]
+        ds = dss[idx // len(grid)]
         params = grid[idx % len(grid)]
         if args.test:
-            print ds, params
+            print(ds, params)
         else:
             task_name = get_task_name(ds, params)
             if task_name not in done_tasks:
@@ -183,7 +200,7 @@ if __name__ == '__main__':
                     os.fsync(loss_file.fileno())
                 except subprocess.CalledProcessError:
                     sys.stderr.write('\nERROR: TASK FAILED {} {}\n\n'.format(ds, params))
-                    print 'ERROR: TASK FAILED', ds, params
+                    print('ERROR: TASK FAILED', ds, params)
         idx += args.num_tasks
 
     if not args.test:
