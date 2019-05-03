@@ -4,7 +4,7 @@ See the following paper for details:
 
 A. Bietti, A. Agarwal, and J. Lanford. [Practical Evaluation and Optimization of Contextual Bandit Algorithms](https://arxiv.org/abs/1802.04064). arXiv preprint, 2018.
 
-# OML
+# obtaining data: `oml_to_vw.py`
 
 You will need an OML account to get the datasets.
 
@@ -16,3 +16,10 @@ You will need an OML account to get the datasets.
 OML_API_KEY="..."
 VW_DS_DIR="..."
 ```
+
+# running the bakeoff: `run_vw_job.py`
+
+* set up to facilitate parallelism
+* first argument is `task_id`: should span from 0 to number-of-parallel-tasks
+* second argument is `num_tasks`: number of parallel tasks
+* `./run_vw_job.py 0 1` runs everything with no parallelism
