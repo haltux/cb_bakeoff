@@ -40,8 +40,8 @@ def expand_cover(policies):
     for psi in [0, 0.01, 0.1, 1.0]:
         algs.append(('cover', policies, 'psi', psi))
         algs.append(('cover', policies, 'psi', psi, 'nounif', None))
-        # algs.append(('cover', policies, 'psi', psi, 'nounifagree', None, 'agree_mellowness', 0.1))
-        # algs.append(('cover', policies, 'psi', psi, 'nounifagree', None, 'agree_mellowness', 0.01))
+        # algs.append(('cover', policies, 'psi', psi, 'nounif', None, 'mellowness', 0.1))
+        # algs.append(('cover', policies, 'psi', psi, 'nounif', None, 'mellowness', 0.01))
     return algs
 
 params = {
@@ -51,15 +51,15 @@ params = {
         ('epsilon', 0.02),
         ('epsilon', 0.05),
         ('epsilon', 0.1),
-        ('epsilon', 0.05, 'nounifagree', None, 'agree_mellowness', 1.0),
-        ('epsilon', 0.05, 'nounifagree', None, 'agree_mellowness', 1e-2),
-        ('epsilon', 0.05, 'nounifagree', None, 'agree_mellowness', 1e-4),
-        ('epsilon', 0.05, 'nounifagree', None, 'agree_mellowness', 1e-6),
+        ('epsilon', 0.05, 'nounif', None, 'mellowness', 1.0),
+        ('epsilon', 0.05, 'nounif', None, 'mellowness', 1e-2),
+        ('epsilon', 0.05, 'nounif', None, 'mellowness', 1e-4),
+        ('epsilon', 0.05, 'nounif', None, 'mellowness', 1e-6),
         # agree
-        ('epsilon', 1, 'nounifagree', None, 'agree_mellowness', 1.0),
-        ('epsilon', 1, 'nounifagree', None, 'agree_mellowness', 1e-2),
-        ('epsilon', 1, 'nounifagree', None, 'agree_mellowness', 1e-4),
-        ('epsilon', 1, 'nounifagree', None, 'agree_mellowness', 1e-6),
+        ('epsilon', 1, 'nounif', None, 'mellowness', 1.0),
+        ('epsilon', 1, 'nounif', None, 'mellowness', 1e-2),
+        ('epsilon', 1, 'nounif', None, 'mellowness', 1e-4),
+        ('epsilon', 1, 'nounif', None, 'mellowness', 1e-6),
         ('bag', 2),
         ('bag', 4),
         ('bag', 8),
