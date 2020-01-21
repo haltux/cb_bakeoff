@@ -92,7 +92,7 @@ def param_grid():
 
 def ds_files():
     import glob
-    return list(sorted(glob.glob(os.path.join(BAKEOFF_BASE_DIR, '*.vw.gz'))))
+    return list(sorted(glob.glob(os.path.join(VW_DS_DIR, '*.vw.gz'))))
 
 
 def get_task_name(ds, params):
